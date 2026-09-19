@@ -1,0 +1,2 @@
+Transaction ID,Tanggal,Tipe,Brand,Kategori,Deskripsi,Nominal,Metode,Order ID,Member ID,Status,Bukti Ref
+FIN-EXAMPLE,2026-09-19,INCOME,Nararya Garage,MOD,Contoh transaksi,45000,QRIS,NR-EXAMPLE,MEM-EXAMPLE,VERIFIED,SECURE-REF
