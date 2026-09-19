@@ -1,0 +1,1 @@
+export interface Brand{id:string;name:string} export interface Health{ok:boolean;service:string} export const currency=(n:number)=>new Intl.NumberFormat("id-ID",{style:"currency",currency:"IDR",maximumFractionDigits:0}).format(n); export async function brands():Promise<Brand[]>{const r=await fetch("/api/brands");return r.json()}
