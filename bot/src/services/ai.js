@@ -1,19 +1,84 @@
-const SYSTEM_PROMPT="Kamu adalah customer service resmi NARARYA BUSINESS untuk Nararya Studio, Nararya Garage, Nararya Store, Hilekros Studio, dan Nexovonarsa Corporation. Jawab bahasa Indonesia yang ramah, ringkas, jelas. Jangan mengarang harga, stok, status order, atau pembayaran. Untuk pembayaran dan status transaksi, hanya data sistem yang boleh menjadi sumber kebenaran. Jika informasi tidak tersedia, minta pelanggan menghubungi admin. Jangan meminta password, OTP, token, atau data kartu.";
-export async function askAI({message,brandHint="auto"}){
- const endpoint=process.env.AI_API_URL,key=process.env.AI_API_KEY,model=process.env.AI_MODEL||"default";
- if(!endpoint)return{reply:fallback(message,brandHint)};
- try{
-  const r=await fetch(endpoint,{method:"POST",headers:{"content-type":"application/json",...(key?{authorization:"Bearer "+key}:{})},body:JSON.stringify({model,messages:[{role:"system",content:SYSTEM_PROMPT},{role:"user",content:"Brand: "+brandHint+"\nPesan: "+message}],temperature:.2}),signal:AbortSignal.timeout(15000)});
-  if(!r.ok)return{reply:fallback(message,brandHint)};
-  const d=await r.json(),reply=d.choices?.[0]?.message?.content||d.output_text||d.reply;
-  return{reply:String(reply||fallback(message,brandHint))};
- }catch{return{reply:fallback(message,brandHint)}}
+const SYSTEM_PROMPT = [
+  "Kamu adalah CS resmi NARARYA BUSINESS, bukan asisten AI yang menyebut dirinya AI.",
+  "Gaya bahasa: manusia, sopan, hangat, profesional, ringkas, jelas, bahasa Indonesia natural.",
+  "Brand: Nararya Studio, Nararya Garage, Nararya Store, Hilekros Studio/Products, Nexovonarsa Corporation.",
+  "Jangan mengarang harga, stok, status pesanan, pembayaran, jadwal, atau kebijakan.",
+  "Gunakan konteks katalog dan sistem sebagai sumber data, bukan tebakan.",
+  "Jangan meminta password, OTP, PIN, token, nomor kartu, atau kredensial akun.",
+  "Untuk data identitas sensitif, arahkan pelanggan ke chat privat dan jelaskan tujuan verifikasi.",
+  "Untuk kasus yang perlu pemeriksaan manusia, katakan bahwa admin akan menangani satu per satu.",
+  "Jangan menyebut bahwa jawaban dibuat AI kecuali pelanggan memang bertanya.",
+  "Jawab dengan format percakapan customer service."
+].join("\n");
+
+const fallbackReplies = [
+  { test: m => /^(halo|hai|hi|p|permisi|assalamualaikum)\\b/.test(m), reply: () =>
+    "Halo, selamat datang di NARARYA BUSINESS 👋\nAda yang bisa kami bantu hari ini? Kami melayani Nararya Studio, Nararya Garage, Nararya Store, dan Hilekros Studio." },
+  { test: m => /(telepon|telfon|teleponan|call|panggilan)/.test(m), reply: () =>
+    "Tentu. Untuk panggilan, boleh sampaikan keperluannya terlebih dahulu lewat chat ini ya. Kami cek dan arahkan ke admin yang sesuai. Mohon bersabar karena pesan masuk kami balas satu per satu." },
+  { test: m => /(harga|berapa|biaya|price)/.test(m), reply: brand =>
+    "Siap, kami bantu cek harga " + (brand && brand !== "auto" ? brand : "produk") + ". Mohon sebutkan nama produk atau layanan yang dicari agar kami cek dari katalog terbaru." },
+  { test: m => /(beli|order|pesan|request)/.test(m), reply: () =>
+    "Siap. Mohon kirim nama produk/layanan, brand yang dipilih, dan detail kebutuhan. Setelah itu kami buatkan proses ordernya." },
+  { test: m => /(bayar|pembayaran|transfer|qris)/.test(m), reply: () =>
+    "Untuk pembayaran, silakan ikuti instruksi pada Order ID. Status pembayaran akan kami konfirmasi dari sistem, bukan berdasarkan bukti chat saja." },
+  { test: m => /(sabar|lama|belum dibalas|menunggu)/.test(m), reply: () =>
+    "Mohon bersabar sebentar ya. Pesan kami tangani satu per satu agar tidak ada detail yang terlewat. Terima kasih sudah menunggu." },
+  { test: m => /(member|resmi)/.test(m), reply: () =>
+    "Untuk pendaftaran Member Resmi, ketik /member daftar. Dokumen sensitif dikirim hanya melalui chat privat dan diproses sesuai kebutuhan verifikasi." }
+];
+
+function fallback(message, brand = "auto", catalogText = "") {
+  const m = String(message || "").toLowerCase().trim();
+  const found = fallbackReplies.find(x => x.test(m));
+  if (found) return { reply: found.reply(brand), confidence: 0.88 };
+  if (catalogText) {
+    return { reply: "Baik, kami cekkan dari katalog terbaru.\n\n" + catalogText, confidence: 0.78 };
+  }
+  return {
+    reply: "Baik, pesannya sudah kami terima. Mohon jelaskan kebutuhan atau produk yang dicari, nanti kami bantu cek satu per satu.\n\nMohon bersabar karena pesan masuk kami balas secara bertahap.",
+    confidence: 0.72
+  };
 }
-function fallback(message,brand){
- const m=String(message).toLowerCase();
- if(/harga|price|biaya|berapa/.test(m))return "Untuk "+brand+", harga perlu dicek dari katalog terbaru. Sebutkan nama produk atau layanan.";
- if(/bayar|payment|transfer|qris/.test(m))return "Pembayaran harus diverifikasi oleh sistem/provider. Kirim Order ID atau ikuti instruksi pembayaran.";
- if(/order|pesan|beli/.test(m))return "Siap. Sebutkan brand, nama produk/layanan, dan jumlahnya.";
- if(/halo|hai|hi|p/.test(m))return "Halo 👋 Saya CS otomatis NARARYA BUSINESS. Kamu bisa pilih Studio, Garage, Store, Hilekros Studio, atau Corporation.";
- return "Pesan diterima 🤖. Jelaskan kebutuhanmu, misalnya order, harga, katalog, pembayaran, atau status pesanan.";
+
+export async function askAI({ message, brandHint = "auto", catalogText = "" }) {
+  const endpoint = process.env.AI_API_URL;
+  const key = process.env.AI_API_KEY;
+  const model = process.env.AI_MODEL || "default";
+  if (!endpoint) return fallback(message, brandHint, catalogText);
+
+  const context = [
+    "Brand: " + brandHint,
+    "Katalog:",
+    catalogText || "(tidak ada hasil katalog)",
+    "",
+    "Pesan pelanggan:",
+    String(message).slice(0, 3000)
+  ].join("\n");
+
+  try {
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        ...(key ? { authorization: "Bearer " + key } : {})
+      },
+      body: JSON.stringify({
+        model,
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          { role: "user", content: context }
+        ],
+        temperature: 0.25
+      }),
+      signal: AbortSignal.timeout(15000)
+    });
+    if (!response.ok) return fallback(message, brandHint, catalogText);
+    const data = await response.json();
+    const reply = data.choices?.[0]?.message?.content || data.output_text || data.reply;
+    if (!reply) return fallback(message, brandHint, catalogText);
+    return { reply: String(reply).trim(), confidence: 0.9, provider: "external" };
+  } catch {
+    return fallback(message, brandHint, catalogText);
+  }
 }
