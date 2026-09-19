@@ -1,7 +1,24 @@
 {
-  "name":"nararya-business-platform","version":"2.0.0","private":true,"type":"module",
-  "description":"Automatic WhatsApp customer service, AI routing, payment verification and multi-brand web platform.",
-  "scripts":{"start":"node bot/src/index.js","web":"node web/server.js","dev":"node --watch bot/src/index.js","web:dev":"node --watch web/server.js"},
-  "engines":{"node":">=20"},
-  "dependencies":{"@hapi/boom":"^10.0.1","@whiskeysockets/baileys":"^7.0.0","dotenv":"^17.2.2","express":"^5.1.0","pino":"^9.9.0","qrcode-terminal":"^0.12.0","sharp":"^0.34.3"}
+  "name": "nararya-business-platform",
+  "version": "3.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Automatic WhatsApp customer service, AI routing, catalog sync, payment verification, member records and multi-brand web platform.",
+  "scripts": {
+    "start": "node bot/src/index.js",
+    "web": "node web/server.js",
+    "dev": "node --watch bot/src/index.js",
+    "web:dev": "node --watch web/server.js",
+    "test": "node --test test/*.test.js"
+  },
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "@hapi/boom": "^10.0.1",
+    "@whiskeysockets/baileys": "^7.0.0",
+    "dotenv": "^17.2.2",
+    "express": "^5.1.0",
+    "pino": "^9.9.0",
+    "qrcode-terminal": "^0.12.0",
+    "sharp": "^0.34.3"
+  }
 }
