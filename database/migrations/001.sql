@@ -1,0 +1,1 @@
+ALTER TABLE orders ADD COLUMN notes TEXT; ALTER TABLE orders ADD COLUMN receipt_path TEXT; ALTER TABLE orders ADD COLUMN channel_notified INTEGER DEFAULT 0;
