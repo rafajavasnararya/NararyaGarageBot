@@ -168,3 +168,12 @@ Jangan commit:
 - session WhatsApp;
 - KTP/KK/SIM/kartu pelajar;
 - foto wajah pelanggan.
+
+## Security & scheduled groups
+
+- Member operational data is encrypted at rest with AES-256-GCM using `SENSITIVE_DATA_KEY_BASE64`.
+- New groups are PENDING until an owner explicitly approves them with `/groupapprove JID`.
+- APPROVED groups are the only groups processed by bot automation.
+- Approved groups are automatically closed at 23:00 WIB and reopened at 05:00 WIB when the bot is an admin and `scheduleEnabled=true`.
+- Each Excel/Word report is a separate managed file; Google Drive sync updates the existing file ID instead of creating duplicates.
+
