@@ -1,0 +1,66 @@
+{
+  "updatedAt": null,
+  "source": "LOCAL_TEMPLATE",
+  "products": [
+    {
+      "retailerId": "NS-VECTOR",
+      "brand": "studio",
+      "name": "Vector Design",
+      "category": "Design",
+      "price": null,
+      "currency": "IDR",
+      "availability": "in_stock",
+      "description": "Jasa desain vector. Harga mengikuti brief dan katalog resmi."
+    },
+    {
+      "retailerId": "NS-3D",
+      "brand": "studio",
+      "name": "3D Design",
+      "category": "3D",
+      "price": null,
+      "currency": "IDR",
+      "availability": "in_stock",
+      "description": "Jasa desain 3D untuk kebutuhan brand, bus, produk, atau visualisasi."
+    },
+    {
+      "retailerId": "NG-KD",
+      "brand": "garage",
+      "name": "Kodename BUSSID/ETS2",
+      "category": "Mod",
+      "price": null,
+      "currency": "IDR",
+      "availability": "in_stock",
+      "description": "Kodename dan layanan mod sesuai katalog Nararya Garage."
+    },
+    {
+      "retailerId": "NG-MOD",
+      "brand": "garage",
+      "name": "Mod Request",
+      "category": "Mod",
+      "price": null,
+      "currency": "IDR",
+      "availability": "in_stock",
+      "description": "Request mod BUSSID/ETS2 berdasarkan brief pelanggan."
+    },
+    {
+      "retailerId": "NSR-PRODUCT",
+      "brand": "store",
+      "name": "Nararya Store Product",
+      "category": "Store",
+      "price": null,
+      "currency": "IDR",
+      "availability": "in_stock",
+      "description": "Produk Nararya Store mengikuti katalog terbaru."
+    },
+    {
+      "retailerId": "HP-DIGITAL",
+      "brand": "hilekros",
+      "name": "Hilekros Digital Product",
+      "category": "Digital",
+      "price": null,
+      "currency": "IDR",
+      "availability": "in_stock",
+      "description": "Produk digital Hilekros Products."
+    }
+  ]
+}
