@@ -1,0 +1,1 @@
+FROM node:20-bookworm-slim WORKDIR /app COPY . . RUN cd bot && npm install --omit=dev && cd ../web && npm install --omit=dev EXPOSE 8080 CMD ["node","bot/src/index.js"]
