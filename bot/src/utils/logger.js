@@ -1,0 +1,1 @@
+export const logger={info:(m,d)=>console.log("[INFO]",m,d||""),warn:(m,d)=>console.warn("[WARN]",m,d||""),error:(m,d)=>console.error("[ERROR]",m,d||"")};
