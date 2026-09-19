@@ -1,0 +1,1 @@
+import fs from "node:fs";import path from "node:path";const p=path.resolve("data/database.json");fs.mkdirSync(path.dirname(p),{recursive:true});fs.writeFileSync(p,JSON.stringify({orders:[{id:"NS-DEMO-001",brand:"studio",product:"Demo Logo",amount:45000,status:"PAID"}],groups:[],logs:[]},null,2));console.log("Seed complete");
