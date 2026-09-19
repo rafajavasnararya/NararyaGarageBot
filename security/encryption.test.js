@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-process.env.SENSITIVE_DATA_KEY_BASE64 = Buffer.from("nararya-secure-key-32-bytes-123456").toString("base64");
+process.env.SENSITIVE_DATA_KEY_BASE64 = Buffer.alloc(32, 7).toString("base64");
 
 test("AES-256-GCM JSON round trip", async () => {
   const { encryptJson, decryptJson } = await import("./encryption.js");
