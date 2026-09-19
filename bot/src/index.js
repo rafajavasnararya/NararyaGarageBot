@@ -8,9 +8,11 @@ import { startAutomationServer } from "./automation.js";
 import { startCatalogScheduler } from "../../catalog/src/scheduler.js";
 import { notifyGroupApproval } from "../../groups/src/notify.js";
 import { getGroupApproval } from "../../groups/src/approval.js";
+import { startGroupScheduler } from "../../groups/src/scheduler.js";
 
 const log = P({ level: process.env.LOG_LEVEL || "info" });
 let catalogStarted = false;
+let groupSchedulerStarted = false;
 
 function normalizeOwnJid(value) {
   return String(value || "").split(":")[0].split("/")[0];
@@ -88,6 +90,10 @@ export async function startBot() {
         startAutomationServer(sock);
         startCatalogScheduler();
         catalogStarted = true;
+      }
+      if (!groupSchedulerStarted) {
+        startGroupScheduler(sock, 30000);
+        groupSchedulerStarted = true;
       }
     }
 
