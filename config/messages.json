@@ -1,0 +1,11 @@
+{
+  "welcome":"Selamat datang di NARARYA BUSINESS BOT.",
+  "invalidPayment":"Pembayaran tidak dapat dikonfirmasi.",
+  "unknownPayment":"Pembayaran sedang diperiksa admin.",
+  "verifiedPayment":"Pembayaran berhasil diverifikasi.",
+  "brands":{
+    "studio":"NARARYA STUDIO",
+    "garage":"NARARYA GARAGE",
+    "hilekros":"HILEKROS PRODUCTS"
+  }
+}
