@@ -1,4 +1,4 @@
-import {mainMenu,brandMenu,withFooter} from "./services/messages.js";
+import {mainMenu,brandMenu,withFooter} from "./messages.js";
 import {getOrder,createOrder,updateOrder} from "./services/orders.js";
 import {verifyPayment} from "./services/payment.js";
 import {isOwner} from "./services/auth.js";
