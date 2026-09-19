@@ -1,0 +1,8 @@
+.form{display:grid;gap:12px}
+.form label{font-weight:700}
+.form input,.form select,.form textarea{width:100%;padding:12px;border-radius:10px;border:1px solid #30343c;background:#101216;color:#fff}
+.form input:focus,.form select:focus,.form textarea:focus{outline:2px solid #666}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.error{padding:12px;border-radius:10px;background:#391818;color:#ff9a9a}
+.success-box{padding:12px;border-radius:10px;background:#153b25;color:#8ee6aa}
+@media(max-width:600px){.form-row{grid-template-columns:1fr}}
