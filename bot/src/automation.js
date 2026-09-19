@@ -31,6 +31,10 @@ export function startAutomationServer(sock) {
       if (!order) return res.status(404).json({ ok: false, error: "order not found" });
 
       if (isPaid(payment.status)) {
+        // Idempotency: payment providers may retry the same webhook.
+        if (String(order.status).toUpperCase() === "PAID") {
+          return res.json({ ok: true, status: "ALREADY_VERIFIED", orderId: order.id });
+        }
         const updated = updateOrder(order.id, {
           status: "PAID",
           transactionId: payment.transactionId,
