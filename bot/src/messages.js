@@ -1,1 +1,13 @@
-export const mainMenu=()=>["🤖 NARARYA BUSINESS BOT","① 🎨 NARARYA STUDIO","② 🚌 NARARYA GARAGE","③ 🛒 HILEKROS PRODUCTS","Ketik studio, garage, atau hilekros."].join("\n"); export function brandMenu(b){const d={studio:["🎨 NARARYA STUDIO","Vector","Line Up","Logo","Jersey","Poster","3D"],garage:["🚌 NARARYA GARAGE","Kodename","Mod","ACC","Karoseri","Livery"],hilekros:["🛒 HILEKROS PRODUCTS","Catalog","Stock","Order","Payment"]}[b];return d?[d[0],"",...d.slice(1).map(x=>"• "+x)].join("\n"):mainMenu()}
+const FOOTER = "\n\n━━━━━━━━━━━━━━━━━━━━\nPT NEXOVONARSACORPORATION\nAll Right Reserved";
+export const withFooter = (text) => String(text) + FOOTER;
+export const mainMenu = () => withFooter(["🤖 NARARYA BUSINESS BOT","","① 🎨 NARARYA STUDIO","② 🚌 NARARYA GARAGE","③ 🛒 NARARYA STORE","④ 🔵 HILEKROS STUDIO","⑤ 🏢 NEXOVONARSA CORPORATION","","Ketik: studio, garage, store, hilekros, corporation","Atau langsung tanyakan kebutuhanmu."].join("\n"));
+export function brandMenu(b){
+ const d={
+ studio:["🎨 NARARYA STUDIO","Vector","Line Up","Kaos / Jersey","Logo Team / Products / Perusahaan","Julukan","Pamflet Trip","Papan Informasi","Poster Umum / Poster Bus","Stiker","3D Design"],
+ garage:["🚌 NARARYA GARAGE","Kodename","Mod Request","ACC","Karoseri","Livery","BUSSID Services","Order & Payment"],
+ store:["🛒 NARARYA STORE","Produk digital","Produk fisik","Katalog","Stok","Order","Pembayaran","Status pesanan"],
+ hilekros:["🔵 HILEKROS STUDIO","Creative products","Design","Digital products","Catalog","Order","Support"],
+ corporation:["🏢 NEXOVONARSA CORPORATION","Corporate Headquarters & Holding Company","Managing Our Brands & Business Units","Nararya Studio","Nararya Garage","Nararya Store","Hilekros Studio"]
+ }[b];
+ return withFooter(d?[d[0],"",...d.slice(1).map(x=>"• "+x)].join("\n"):mainMenu());
+}
