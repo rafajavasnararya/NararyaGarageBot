@@ -1,0 +1,6 @@
+.data-table{width:100%;border-collapse:collapse;background:#15171c;border-radius:12px;overflow:hidden}
+.data-table th{background:#20242b;color:#fff;font-size:13px;text-transform:uppercase}
+.data-table th,.data-table td{padding:13px;text-align:left;border-bottom:1px solid #292d35}
+.data-table tr:hover{background:#1d2026}
+.status-paid{color:#80e6a4}.status-pending{color:#f2d56c}.status-invalid{color:#ff8585}
+.empty{padding:30px;text-align:center;color:#969eaa}
