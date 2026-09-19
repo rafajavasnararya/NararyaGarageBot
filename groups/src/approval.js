@@ -46,7 +46,11 @@ export function approveGroup(jid, actor) {
     ...pending,
     status: "APPROVED",
     approvedBy: actor,
-    approvedAt: new Date().toISOString()
+    approvedAt: new Date().toISOString(),
+    scheduleEnabled: true,
+    timezone: process.env.GROUP_TIMEZONE || "Asia/Jakarta",
+    closeTime: process.env.GROUP_CLOSE_TIME || "23:00",
+    openTime: process.env.GROUP_OPEN_TIME || "05:00"
   };
   delete db.pending[key];
   write(db);
@@ -66,6 +70,15 @@ export function rejectGroup(jid, actor, reason = "") {
   };
   write(db);
   return db.pending[key];
+}
+
+export function setGroupSchedule(jid, enabled) {
+  const db = read();
+  const key = String(jid);
+  if (!db.approved[key]) return null;
+  db.approved[key].scheduleEnabled = Boolean(enabled);
+  write(db);
+  return db.approved[key];
 }
 
 export function listApprovedGroups() {
