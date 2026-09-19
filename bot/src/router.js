@@ -5,14 +5,16 @@ import { isOwner } from "./services/auth.js";
 import { askAI } from "./services/ai.js";
 import { handleGroupCommand } from "./services/groupManager.js";
 import { catalogReply, catalogContext } from "./services/catalog.js";
-import { sendProfessionalReply } from "./services/response.js";
 import { startMemberFlow } from "../../member/src/flow.js";
 import { handleMemberCommand } from "../../member/src/onboarding.js";
-import { ingestMemberImage } from "../../member/src/mediaUpload.js";
-import { getMemberByWhatsApp } from "../../member/src/store.js";
 import { consentText } from "../../member/src/privacy.js";
+import { isApprovedGroup, approveGroup, rejectGroup } from "../../groups/src/approval.js";
 
 const brands = ["studio", "garage", "store", "hilekros", "corporation"];
+const groupCommands = [
+  "rules","groupinfo","antilink","antispam","tagall","promote","demote",
+  "remove","subject","description","link","revoke","settings"
+];
 
 function getText(message) {
   return (
@@ -24,75 +26,119 @@ function getText(message) {
   ).trim();
 }
 
-async function reply(sock, jid, text) {
-  return sendProfessionalReply(sock, jid, withFooter(text));
+function isGroup(jid) {
+  return String(jid || "").endsWith("@g.us");
+}
+
+async function notifyApprovalResult(sock, groupJid, approved, actor) {
+  const text = approved
+    ? [
+        "✅ GRUP DISETUJUI",
+        "",
+        "Grup ini sudah dikonfirmasi oleh admin.",
+        "Bot siap menjalankan layanan otomatis dan fitur admin sesuai hak akses.",
+        "",
+        "Disetujui oleh: " + actor,
+        "",
+        "PT NEXOVONARSACORPORATION - All Right Reserved"
+      ].join("\n")
+    : [
+        "⛔ GRUP TIDAK DISETUJUI",
+        "",
+        "Bot tidak mengaktifkan layanan otomatis pada grup ini.",
+        "Silakan hubungi admin resmi apabila grup perlu dipertimbangkan kembali.",
+        "",
+        "PT NEXOVONARSACORPORATION - All Right Reserved"
+      ].join("\n");
+  await sock.sendMessage(groupJid, { text });
 }
 
 export async function routeMessage(sock, m) {
   const jid = m.key.remoteJid;
   const text = getText(m);
-  if (!jid) return;
+  if (!jid || !text) return;
 
   const l = text.toLowerCase();
 
-  if (m.message?.imageMessage && /^\\/member\\s+upload\\s+/i.test(text)) {
-    const type = text.split(/\\s+/).slice(2).join("_").toUpperCase();
-    const member = getMemberByWhatsApp(jid);
-
-    if (!member) {
-      return reply(sock, jid, "Sebelum mengirim bukti, silakan mulai /member daftar terlebih dahulu.");
+  // Approval commands are owner-only and should be issued from a private chat.
+  if (l.startsWith("/groupapprove ")) {
+    if (isGroup(jid) || !isOwner(jid)) {
+      return sock.sendMessage(jid, { text: withFooter("⛔ Perintah ini hanya untuk admin utama melalui chat privat.") });
     }
-
-    try {
-      const result = await ingestMemberImage(sock, m, member.member_id, type);
-      const visibility = result.sensitive
-        ? "File disimpan sebagai referensi privat terenkripsi dan tidak dipublikasikan."
-        : "File disimpan sebagai referensi privat.";
-      return reply(sock, jid, "✅ Bukti berhasil diterima. " + visibility + " Admin akan melakukan pemeriksaan berikutnya.");
-    } catch (error) {
-      return reply(sock, jid, "Maaf, file belum berhasil diproses. Coba kirim ulang sebagai foto dengan caption /member upload JENIS.");
+    const target = text.slice("/groupapprove ".length).trim();
+    if (!target.endsWith("@g.us")) {
+      return sock.sendMessage(jid, { text: withFooter("Format: /groupapprove 123456789@g.us") });
     }
+    const approved = approveGroup(target, jid);
+    await notifyApprovalResult(sock, target, true, jid);
+    return sock.sendMessage(jid, {
+      text: withFooter("✅ Grup disetujui: " + approved.subject + "\nJID: " + approved.jid)
+    });
+  }
+
+  if (l.startsWith("/groupreject ")) {
+    if (isGroup(jid) || !isOwner(jid)) {
+      return sock.sendMessage(jid, { text: withFooter("⛔ Perintah ini hanya untuk admin utama melalui chat privat.") });
+    }
+    const parts = text.slice("/groupreject ".length).trim().split(/\s+/);
+    const target = parts.shift();
+    const reason = parts.join(" ").slice(0, 300) || "Tidak ada alasan.";
+    if (!target?.endsWith("@g.us")) {
+      return sock.sendMessage(jid, { text: withFooter("Format: /groupreject 123456789@g.us alasan") });
+    }
+    const rejected = rejectGroup(target, jid, reason);
+    await notifyApprovalResult(sock, target, false, jid);
+    return sock.sendMessage(jid, {
+      text: withFooter("⛔ Grup ditolak: " + rejected.subject + "\nAlasan: " + reason)
+    });
+  }
+
+  if (isGroup(jid) && !isApprovedGroup(jid)) {
+    // Quarantine: do not expose bot admin features before confirmation.
+    return sock.sendMessage(jid, {
+      text: withFooter("Grup ini sedang menunggu konfirmasi admin resmi. Bot belum mengaktifkan layanan otomatis di grup ini.")
+    });
   }
 
   if (["menu", "start", "help"].includes(l)) {
-    return reply(sock, jid, mainMenu());
+    return sock.sendMessage(jid, { text: mainMenu() });
   }
 
   if (l === "/member daftar" || l === "member daftar") {
     const flow = startMemberFlow(jid);
-    return reply(sock, jid, flow.message || consentText());
+    return sock.sendMessage(jid, { text: withFooter(flow.message || consentText()) });
   }
 
   if (l.startsWith("/member ")) {
-    const args = text.slice(8).trim().split(/\\s+/);
+    const args = text.slice(8).trim().split(/\s+/);
     const result = handleMemberCommand(jid, args);
-    return reply(sock, jid, result.reply);
+    return sock.sendMessage(jid, { text: withFooter(result.reply) });
   }
 
   if (brands.includes(l)) {
-    return reply(sock, jid, brandMenu(l));
+    return sock.sendMessage(jid, { text: brandMenu(l) });
   }
 
   if (l.startsWith("status ")) {
     const o = getOrder(text.slice(7).trim());
     const result = o
-      ? ["📦 STATUS PESANAN", "Order: " + o.id, "Brand: " + o.brand, "Produk: " + o.product, "Status: " + o.status].join("\n")
+      ? ["📦 STATUS PESANAN","Order: " + o.id,"Brand: " + o.brand,"Produk: " + o.product,"Status: " + o.status].join("\n")
       : "Order tidak ditemukan. Silakan cek kembali Order ID.";
-    return reply(sock, jid, result);
+    return sock.sendMessage(jid, { text: withFooter(result) });
   }
 
   if (text.startsWith("/")) {
-    const [cmd, ...args] = text.slice(1).split(/\\s+/);
+    const [cmd, ...args] = text.slice(1).split(/\s+/);
 
     if (cmd === "createorder" && isOwner(jid)) {
       const [brand, product, amount] = args.join(" ").split("|");
       const order = createOrder({ brand, product, amount, customerJid: jid });
-      return reply(sock, jid, order ? "✅ Order dibuat: " + order.id : "Format order salah.");
+      return sock.sendMessage(jid, { text: withFooter(order ? "✅ Order dibuat: " + order.id : "Format order salah.") });
     }
 
     if (cmd === "verify" && isOwner(jid)) {
       const order = getOrder(args[0]);
-      if (!order) return reply(sock, jid, "Order tidak ditemukan.");
+      if (!order) return sock.sendMessage(jid, { text: withFooter("Order tidak ditemukan.") });
       const result = await verifyPayment(order, args[1] || "");
       if (result.status === "VERIFIED") {
         updateOrder(order.id, {
@@ -100,17 +146,13 @@ export async function routeMessage(sock, m) {
           transactionId: result.transactionId,
           verifiedAt: new Date().toISOString()
         });
-        return reply(sock, jid, "✅ Pembayaran terverifikasi: " + order.id);
+        return sock.sendMessage(jid, { text: withFooter("✅ Pembayaran terverifikasi: " + order.id) });
       }
-      if (result.status === "INVALID") return reply(sock, jid, "❌ Pembayaran tidak terverifikasi.");
-      return reply(sock, jid, "⏳ Pembayaran masih menunggu pemeriksaan admin/provider.");
+      if (result.status === "INVALID") return sock.sendMessage(jid, { text: withFooter("❌ Pembayaran tidak terverifikasi.") });
+      return sock.sendMessage(jid, { text: withFooter("⏳ Pembayaran masih menunggu pemeriksaan admin/provider.") });
     }
 
-    if ([
-      "rules","groupinfo","antilink","antispam","tagall",
-      "promote","demote","remove","subject","description",
-      "link","revoke","settings"
-    ].includes(cmd)) {
+    if (groupCommands.includes(cmd)) {
       return handleGroupCommand(sock, m, cmd, args);
     }
   }
@@ -121,8 +163,8 @@ export async function routeMessage(sock, m) {
   const catalogMessage = catalogReply(text);
 
   if (catalogMessage && /(katalog|produk|mod|kd|harga|stok|available|tersedia)/.test(l)) {
-    return reply(sock, jid, catalogMessage);
+    return sock.sendMessage(jid, { text: withFooter(catalogMessage) });
   }
 
-  return reply(sock, jid, ai.reply);
+  return sock.sendMessage(jid, { text: withFooter(ai.reply) });
 }
