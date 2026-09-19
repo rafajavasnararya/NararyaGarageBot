@@ -12,3 +12,5 @@ receipts/
 *.log
 *.key
 *.pem
+data/members.enc.json
+data/google-drive-registry.json
