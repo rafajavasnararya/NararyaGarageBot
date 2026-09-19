@@ -1,0 +1,7 @@
+{
+  "verified":["PAID","SUCCESS","SETTLED"],
+  "invalid":["INVALID","FAILED","NOT_FOUND","EXPIRED","CANCELLED"],
+  "unknown":["PENDING","PROCESSING","UNKNOWN"],
+  "requireProvider":true,
+  "trustScreenshot":false
+}
