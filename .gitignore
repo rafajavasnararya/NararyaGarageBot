@@ -6,6 +6,8 @@ data/members.json
 data/auth_info/
 data/private/
 data/backups/
+data/member-sessions.json
+data/approved-groups.json
 receipts/
 *.log
 *.key
