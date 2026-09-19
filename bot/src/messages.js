@@ -1,5 +1,5 @@
 const FOOTER = "\n\n━━━━━━━━━━━━━━━━━━━━\nPT NEXOVONARSACORPORATION\nAll Right Reserved";
-export const withFooter = (text) => String(text) + FOOTER;
+export const withFooter = (text) => { const s=String(text); return s.includes("PT NEXOVONARSACORPORATION") ? s : s + FOOTER; };
 export const mainMenu = () => withFooter(["🤖 NARARYA BUSINESS BOT","","① 🎨 NARARYA STUDIO","② 🚌 NARARYA GARAGE","③ 🛒 NARARYA STORE","④ 🔵 HILEKROS STUDIO","⑤ 🏢 NEXOVONARSA CORPORATION","","Ketik: studio, garage, store, hilekros, corporation","Atau langsung tanyakan kebutuhanmu."].join("\n"));
 export function brandMenu(b){
  const d={
