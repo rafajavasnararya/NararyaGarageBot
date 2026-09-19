@@ -1,72 +1,58 @@
-# NARARYA BUSINESS WHATSAPP BOT
+# NARARYA BUSINESS PLATFORM
 
-Satu bot WhatsApp untuk:
+WhatsApp automation + AI customer service + payment verification + multi-brand website untuk:
 
 - 🎨 Nararya Studio
 - 🚌 Nararya Garage
-- 🛒 Hilekros Products
+- 🛒 Nararya Store
+- 🔵 Hilekros Studio
+- 🏢 Nexovonarsa Corporation
 
-## Fitur
+## Automatic customer service
 
-- Menu customer service per brand
-- Pembuatan dan pengecekan order
-- Verifikasi pembayaran melalui provider API
-- Pembayaran INVALID tidak membalas customer secara normal; admin diberi alert
-- Pembayaran UNKNOWN ditahan untuk pemeriksaan manual
-- Bukti transaksi otomatis dibuat sebagai PNG
-- Notifikasi admin dan channel
-- Welcome/goodbye grup
-- Anti-link dan anti-spam dasar
-- Perintah admin grup: /rules, /groupinfo, /antilink, /antispam, /tagall
-- Role OWNER, SUPER_ADMIN, BRAND_ADMIN, MODERATOR
+Bot menerima pertanyaan biasa dan meneruskannya ke AI provider melalui `AI_API_URL`. Jika AI belum dikonfigurasi, bot memakai fallback CS lokal sehingga tetap auto-reply.
 
-## Penting soal pembayaran
+Semua balasan customer memakai footer:
+**PT NEXOVONARSACORPORATION - All Right Reserved**
 
-Bot tidak menganggap screenshot sebagai bukti pembayaran. Screenshot dapat dipalsukan. Status transaksi harus berasal dari payment provider API/webhook yang benar.
+AI tidak boleh mengarang harga, stok, status order, atau mengonfirmasi pembayaran. Status pembayaran tetap berasal dari payment provider.
 
-Adapter di `src/services/paymentVerifier.js` mengharapkan endpoint yang mengembalikan JSON seperti:
+## Pembayaran otomatis
 
-```json
-{
-  "status": "PAID",
-  "transactionId": "TX-123"
-}
-```
+- Provider API dapat dikonfigurasi lewat environment.
+- Webhook pembayaran tersedia di `/webhook/payment`.
+- Signature webhook wajib cocok dengan `PAYMENT_WEBHOOK_SECRET`.
+- PAID/SUCCESS/SETTLED -> VERIFIED.
+- INVALID/FAILED/NOT_FOUND/EXPIRED/CANCELLED -> INVALID.
+- Status lain -> UNKNOWN dan admin diberi notifikasi.
+- Setelah VERIFIED, receipt PNG dibuat otomatis dan dipublikasikan ke channel jika `CHANNEL_JID` tersedia.
+- Receipt publik hanya memuat informasi order dasar, bukan rahasia pembayaran.
 
-Status PAID = VERIFIED. INVALID/FAILED/NOT_FOUND/EXPIRED = INVALID. Selain itu = UNKNOWN.
+## Website
 
-Untuk produksi, gunakan webhook provider dengan validasi signature. Jangan commit API key, session WhatsApp, atau data pelanggan ke GitHub.
+Website multi-brand tersedia sebagai:
+- `/`
+- `/garage.html`
+- `/store.html`
+- `/hilekros.html`
+- `/studio.html`
+- `/corporation.html`
+
+Tema website menggunakan background abu-abu/biru gelap dengan layout responsif dan AI chat.
 
 ## Setup
 
-1. Install Node.js 20+.
-2. Jalankan `npm install`.
-3. Salin `.env.example` menjadi `.env`.
-4. Isi `OWNER_NUMBERS`, provider pembayaran, dan JID notifikasi.
-5. Jalankan `npm start`.
-6. Scan QR WhatsApp dari terminal.
-7. Jadikan akun bot admin di grup yang ingin dikelola.
+1. Node.js 20+.
+2. `npm install`.
+3. Salin `.env.example` ke `.env`.
+4. Isi OWNER_NUMBERS, payment provider, AI provider, ADMIN_NOTIFY_JID, dan CHANNEL_JID.
+5. `npm start` untuk bot.
+6. `npm run web` untuk website.
+7. Scan QR WhatsApp.
+8. Jadikan bot admin jika ingin memakai fitur manajemen grup.
 
-## Commands
+## Catatan
 
-Customer:
-- `menu`
-- `studio`
-- `garage`
-- `hilekros`
-- `status ORDER_ID`
+Project menggunakan Baileys, library tidak resmi untuk WhatsApp Web. Kemampuan aktual dan aturan penggunaan dapat berubah. Gunakan secara wajar dan patuhi ketentuan WhatsApp.
 
-Owner:
-- `/createorder BRAND|PRODUCT|AMOUNT`
-- `/verify ORDER_ID [TRANSACTION_ID]`
-
-Group admin:
-- `/rules`
-- `/groupinfo`
-- `/antilink on|off`
-- `/antispam on|off`
-- `/tagall`
-
-## Catatan WhatsApp
-
-Project ini menggunakan Baileys, yaitu library tidak resmi untuk WhatsApp Web. Kemampuan aktual, kompatibilitas, dan aturan penggunaan dapat berubah. Gunakan secara wajar dan patuhi ketentuan WhatsApp.
+Jangan commit API key, session WhatsApp, OTP, token, atau data pelanggan ke GitHub.
