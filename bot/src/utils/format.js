@@ -1,0 +1,1 @@
+export const rupiah=n=>new Intl.NumberFormat("id-ID",{style:"currency",currency:"IDR",maximumFractionDigits:0}).format(Number(n));export const now=()=>new Date().toISOString();export const safeText=x=>String(x??"").replace(/[<>]/g,"");
