@@ -1,0 +1,1 @@
+const list=n=>(process.env[n]||"").split(",").map(x=>x.replace(/\D/g,"")).filter(Boolean);export const isOwner=jid=>list("OWNER_NUMBERS").includes(String(jid).split("@")[0].replace(/\D/g,""));export const isAdmin=jid=>isOwner(jid)||list("ADMIN_NUMBERS").includes(String(jid).split("@")[0].replace(/\D/g,""));
