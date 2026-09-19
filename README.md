@@ -5,54 +5,166 @@ WhatsApp automation + AI customer service + payment verification + multi-brand w
 - 🎨 Nararya Studio
 - 🚌 Nararya Garage
 - 🛒 Nararya Store
-- 🔵 Hilekros Studio
+- 🔵 Hilekros Studio / Hilekros Products
 - 🏢 Nexovonarsa Corporation
 
-## Automatic customer service
+## Customer service otomatis
 
-Bot menerima pertanyaan biasa dan meneruskannya ke AI provider melalui `AI_API_URL`. Jika AI belum dikonfigurasi, bot memakai fallback CS lokal sehingga tetap auto-reply.
+Bot menerima chat biasa dan merespons dengan gaya customer service natural berbahasa Indonesia.
 
-Semua balasan customer memakai footer:
-**PT NEXOVONARSACORPORATION - All Right Reserved**
+Fitur:
+- menu multi-brand;
+- katalog lookup;
+- AI provider + fallback lokal;
+- typing/composing delay pendek agar balasan terasa natural;
+- template balasan saat pelanggan meminta waktu;
+- handler panggilan untuk meminta pelanggan menjelaskan keperluan melalui chat;
+- footer standar:
 
-AI tidak boleh mengarang harga, stok, status order, atau mengonfirmasi pembayaran. Status pembayaran tetap berasal dari payment provider.
+PT NEXOVONARSACORPORATION - All Right Reserved
+
+AI tidak boleh mengarang harga, stok, status order, atau pembayaran.
 
 ## Pembayaran otomatis
 
-- Provider API dapat dikonfigurasi lewat environment.
-- Webhook pembayaran tersedia di `/webhook/payment`.
-- Signature webhook wajib cocok dengan `PAYMENT_WEBHOOK_SECRET`.
+- Payment webhook tersedia di /webhook/payment.
+- Signature webhook wajib valid.
 - PAID/SUCCESS/SETTLED -> VERIFIED.
-- INVALID/FAILED/NOT_FOUND/EXPIRED/CANCELLED -> INVALID.
+- Invalid/failed/expired/cancelled -> INVALID.
 - Status lain -> UNKNOWN dan admin diberi notifikasi.
-- Setelah VERIFIED, receipt PNG dibuat otomatis dan dipublikasikan ke channel jika `CHANNEL_JID` tersedia.
-- Receipt publik hanya memuat informasi order dasar, bukan rahasia pembayaran.
+- Receipt PNG dibuat otomatis setelah pembayaran tervalidasi.
+- Riwayat pembelian member dicatat setelah pembayaran terverifikasi.
+- Receipt publik tidak berisi dokumen identitas atau foto wajah.
+
+## Member Resmi
+
+Alur member menggunakan consent dan metadata terstruktur.
+
+Data operasional:
+- WhatsApp;
+- Gmail;
+- Instagram/TikTok;
+- PO BUSSID/ETS2;
+- riwayat pembelian;
+- bukti ownership.
+
+Dokumen sensitif:
+- KTP;
+- KK;
+- SIM;
+- kartu pelajar;
+- foto wajah.
+
+Dokumen sensitif hanya disimpan sebagai file terenkripsi/private reference. Jangan kirim dokumen sensitif ke grup atau channel.
+
+Image review menggunakan indikasi:
+- LIKELY_ORIGINAL
+- LIKELY_MANUAL_EDITED
+- LIKELY_AI_ASSISTED
+- UNCERTAIN
+
+Hasil tersebut bukan bukti forensik. Kasus UNCERTAIN/confidence rendah masuk human review.
+
+## Katalog
+
+Ada service katalog lokal + adapter WhatsApp Business/Graph API.
+
+- CATALOG_AUTO_SYNC=true
+- CATALOG_AUTO_APPLY=false
+
+Auto apply dimatikan secara default agar AI tidak mengubah harga/stok tanpa sumber data resmi.
 
 ## Website
 
-Website multi-brand tersedia sebagai:
-- `/`
-- `/garage.html`
-- `/store.html`
-- `/hilekros.html`
-- `/studio.html`
-- `/corporation.html`
+Halaman tersedia:
+- /
+- /garage.html
+- /store.html
+- /hilekros.html
+- /studio.html
+- /corporation.html
 
-Tema website menggunakan background abu-abu/biru gelap dengan layout responsif dan AI chat.
+Tema abu-abu/biru gelap dan responsive.
+
+Nararya Store memiliki endpoint katalog:
+- GET /api/catalog
+- GET /api/catalog?q=kata-kunci
+
+## Group management
+
+Saat bot menjadi admin dan pengirim adalah admin, tersedia:
+- /rules
+- /groupinfo
+- /tagall
+- /promote
+- /demote
+- /remove
+- /subject
+- /description
+- /link
+- /revoke
+- /antilink on|off
+- /antispam on|off
+- /settings
+
+## Struktur teknologi
+
+Project saat ini memiliki lebih dari 25 folder dan lebih dari 100 file repository.
+
+Bahasa/teknologi:
+- JavaScript
+- TypeScript
+- Python
+- CSS
+- HTML
+- SQL
+- C++
+- Bash
+- Docker
+- GitHub Actions
+
+Ada juga native C++ helper untuk media-signature/low-level triage.
+
+## Excel & Word
+
+File administrasi dibuat terpisah:
+- database member;
+- social evidence;
+- ownership evidence;
+- purchases;
+- finance;
+- media review;
+- catalog;
+- audit log;
+- call log;
+- security notes;
+- dashboard.
+
+## Google Drive
+
+Adapter Google Drive tersedia untuk deployment. Kredensial akses harus dikonfigurasi sendiri di environment. Tidak ada klaim bahwa upload telah terjadi tanpa token yang valid.
 
 ## Setup
 
 1. Node.js 20+.
-2. `npm install`.
-3. Salin `.env.example` ke `.env`.
-4. Isi OWNER_NUMBERS, payment provider, AI provider, ADMIN_NOTIFY_JID, dan CHANNEL_JID.
-5. `npm start` untuk bot.
-6. `npm run web` untuk website.
-7. Scan QR WhatsApp.
-8. Jadikan bot admin jika ingin memakai fitur manajemen grup.
+2. npm install.
+3. Salin .env.example menjadi .env.
+4. Isi OWNER_NUMBERS, ADMIN_NUMBERS, AI provider, payment provider, dan konfigurasi Meta bila digunakan.
+5. npm start untuk bot.
+6. npm run web untuk website.
+7. Scan QR bila menggunakan koneksi Baileys.
+8. Jadikan bot admin grup bila memerlukan fungsi admin grup.
 
-## Catatan
+## Catatan WhatsApp
 
-Project menggunakan Baileys, library tidak resmi untuk WhatsApp Web. Kemampuan aktual dan aturan penggunaan dapat berubah. Gunakan secara wajar dan patuhi ketentuan WhatsApp.
+Baileys adalah koneksi WhatsApp Web, sedangkan WhatsApp Business Platform/Cloud API adalah jalur resmi Meta untuk integrasi bisnis.
 
-Jangan commit API key, session WhatsApp, OTP, token, atau data pelanggan ke GitHub.
+Channel dan beberapa kemampuan admin dapat berbeda dari chat biasa. Verifikasi fitur pada akun WhatsApp target sebelum production.
+
+Jangan commit:
+- API key;
+- access token;
+- OTP;
+- session WhatsApp;
+- KTP/KK/SIM/kartu pelajar;
+- foto wajah pelanggan.
