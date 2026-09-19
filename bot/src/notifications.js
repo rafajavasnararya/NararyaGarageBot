@@ -1,0 +1,1 @@
+export async function notifyAdmin(sock,text){const jid=process.env.ADMIN_NOTIFY_JID;if(jid)await sock.sendMessage(jid,{text})} export async function notifyChannel(sock,text){const jid=process.env.CHANNEL_JID;if(jid)await sock.sendMessage(jid,{text})}
