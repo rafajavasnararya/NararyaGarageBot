@@ -1,9 +1,9 @@
 {
-  "name": "nararya-business-platform",
-  "version": "3.0.0",
+  "name": "nexovonarsa-whatsappcustomerservice-ai",
+  "version": "3.1.0",
   "private": true,
   "type": "module",
-  "description": "Automatic WhatsApp customer service, AI routing, catalog sync, payment verification, member records and multi-brand web platform.",
+  "description": "NEXOVONARSACORPORATION multi-brand WhatsApp customer service and automation platform.",
   "scripts": {
     "start": "node bot/src/index.js",
     "web": "node web/server.js",
