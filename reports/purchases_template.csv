@@ -1,0 +1,2 @@
+Purchase ID,Member ID,Order ID,Tanggal,Brand,Produk,Jenis,Author,Nominal,Payment Status,License Evidence Ref,Receipt Ref
+PUR-EXAMPLE,MEM-EXAMPLE,NR-EXAMPLE,2026-09-19,Nararya Garage,Contoh KD,KD,Author,45000,PAID,SECURE-REF,RECEIPT-REF
